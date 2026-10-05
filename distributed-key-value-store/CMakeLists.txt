@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.20)
+project(distributed_key_value_store VERSION 1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(Threads REQUIRED)
+add_library(dkv src/engine.cpp src/thread_pool.cpp src/raft.cpp)
+target_include_directories(dkv PUBLIC include)
+target_link_libraries(dkv PUBLIC Threads::Threads)
+if(MSVC)
+  target_compile_options(dkv PRIVATE /W4 /permissive-)
+else()
+  target_compile_options(dkv PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_executable(dkv-node src/main.cpp)
+target_link_libraries(dkv-node PRIVATE dkv)
